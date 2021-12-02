@@ -1,0 +1,5 @@
+./verilog/fir4TapTestBench.sv
+./verilog/fullAdder.sv
+./verilog/rippleCarry.sv
+./verilog/firTap.sv
+./verilog/carrySave.sv
