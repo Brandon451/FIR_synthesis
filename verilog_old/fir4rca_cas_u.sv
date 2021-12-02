@@ -38,7 +38,7 @@ module fir4rca_cas_u #(
     rca1_co[0] = 0;
     for(int i=0; i<w; i++)
       {rca1_co[i+1],rca1_s[i]} = ar[i] + br[i] + rca1_co[i];
-	rc1 = {rca1_co[w],rca1_s};
+	  rc1 = {rca1_co[w],rca1_s};
   end
   always_comb begin
     rca2_co[0] = 0;
