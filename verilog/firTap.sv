@@ -1,6 +1,6 @@
 //`define rippleCarry_transpose
-//`define carrySave_transpose
-`define baseline    //Canonical ripple carry adder
+`define carrySave_transpose
+//`define baseline    //Canonical ripple carry adder
 
 // adder_arch 1 - ripple carry adder
 //              2 - carry save adder
@@ -61,16 +61,17 @@ module firTap #(
 
 integer i;
 
+//Shift registor memory implementation
 always @ (posedge clk) begin : input_delay
     if (reset) begin
         for(i=0; i<tapSize; i=i+1) begin
-            in_temp[i] = 0;
+            in_temp[i] <= 0;
         end
     end
     else begin
         in_temp[0] <= (in_valid)? in:0;
         valid_temp[0] <= in_valid;
-        for(i=0; i<tapSize; i=i+1) begin
+        for(i=0; i<tapSize-1; i=i+1) begin
             in_temp[i+1] <= in_temp[i];
             valid_temp[i+1] <= valid_temp[i];
         end
