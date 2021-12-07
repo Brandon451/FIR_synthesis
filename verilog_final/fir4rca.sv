@@ -1,32 +1,3 @@
-##CLA
-
-module cla #(parameter w=16)(
-  input [w-1:0] a,
-  input [w-1:0] b,
-  output logic [w:0] out
-);
- 
-  logic [w-1:0] p;
-  logic [w-1:0] g;
-  logic [w:0] c;
-  logic [w-1:0] sum;
- 
-  assign c[0] = 1'b0;
-  genvar jj;
- 
-  generate
-    for (jj = 0;jj < w;jj++) begin
-      assign p[jj] = a[jj] ^ b[jj];
-      assign g[jj] = a[jj] & b[jj];
-      assign c[jj+1] = g[jj] | ( p[jj] & c[jj] );
-      assign sum[jj] = p[jj] ^ c[jj];
-    end
-  endgenerate
- 
-  assign out = {c[w],sum};
- 
-endmodule
-
 module fir4rca #(parameter w=16)(
   input                      clk,
                              reset,
