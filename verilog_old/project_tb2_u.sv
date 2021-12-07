@@ -31,7 +31,7 @@ fir4rca #(.w(w)) f1(.*);
   initial begin
     $display("a   s  s_b  diff");
     #10ns reset = '0;
-	for(int i = 0; i < 25; i++) begin
+	for(int i = 0; i < 10; i++) begin
 	  a   = $random;// 2**(i/4);//$random;
 	  #8ns $displayh(a,,,,,s,,,,s_b1,,,,dif1);
 	  #2ns;
@@ -56,6 +56,12 @@ fir4rca #(.w(w)) f1(.*);
     end :run
 
   assign dif1 = s - s_b1;
+
+initial begin
+  $dumpfile("waves.vcd");
+  $dumpvars(0, project_tb2_u);
+end
+
 endmodule
 
 
