@@ -57,6 +57,8 @@ logic [w-1:0] dr;
     logic [w+1:0]   rca2_co;
     logic [w+2:0]   rca3_co;
 
+    logic [w+1:0]   sum;
+
     //* Canonical structure
 
     always_comb begin
