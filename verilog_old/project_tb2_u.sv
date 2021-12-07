@@ -1,6 +1,8 @@
 // testbench for 4-tap, w-bit, unsigned averaging FIR filter
 // ECE260A Lab 3 assignment   2019
 // change parameter w to experiment wih wider operand vectors, such as 16 bits
+`timescale 1ns/1ps
+
 module project_tb2_u;
   parameter           w = 4;
   logic               clk = 'b0,			          
@@ -16,11 +18,12 @@ module project_tb2_u;
 
 // device under test goes here
 // choose "tree," "cascade," "CSA," or other topology
-  fir4rca_cas_u #(.w(w)) f1(.*);
+//  fir4rca_cas_u #(.w(w)) f1(.*);
+fir4rca #(.w(w)) f1(.*);
 //  fir4rca_u #(.w(w)) f1(.*);
 
   always begin			           	  // tick ... tock 
-    #5ns clk = 'b1;
+  #5ns clk = 'b1;
 	#5ns clk = 'b0;
   end
 

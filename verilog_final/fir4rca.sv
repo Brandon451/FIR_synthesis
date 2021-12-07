@@ -1,5 +1,4 @@
-//`define rca_tree
-`define baseline
+//Transpose form
 
 module fir4rca #(
     parameter w = 16
@@ -12,96 +11,62 @@ module fir4rca #(
 
 //Pipeline for inputs
 logic [w-1:0] ar;
-logic [w-1:0] br;
-logic [w-1:0] cr;
-logic [w-1:0] dr;
 
-`ifdef rca_tree
-    //Ripple carry adder intermediate signals
-    logic [w-1:0]   rca1_s;
-    logic [w-1:0]   rca2_s;
-    logic [w:0]     rca1_co;
-    logic [w:0]     rca2_co;
-    logic [w+1:0]   sum;
+//Pipeline for sums
+logic [w:0]     sum1;
+logic [w:0]     sum1r;
+logic [w+1:0]   sum2;
+logic [w+1:0]   sum2r;
+logic [w+1:0]   sum3;
 
-    //*Tree structure
+logic [w-1:0]   rca1_s;
+logic [w:0]     rca2_s;
+logic [w+1:0]   rca3_s;
+logic [w:0]     cr2;
+logic [w+1:0]   dr3;
+logic [w:0]     rca1_co;    //Carry in
+logic [w+1:0]   rca2_co;
+logic [w+2:0]   rca3_co;
 
-    //First adder to add first 2 inputs
-    always_comb begin
-        rca1_co[0] = 0;
-        for (int i=0; i<w; i++)
-            {rca1_co[i+1], rca1_s[i]} = ar[i] + br[i] + rca1_co[i];
-    end
+logic [w+1:0]   sum;
 
-    //Second adder to add last 2 inputs
-    always_comb begin
-        rca2_co[0] = 0;
-        for (int i=0; i<w; i++)
-            {rca2_co[i+1], rca2_s[i]} = cr[i] + dr[i] + rca2_co[i]; 
-    end
+always_comb begin
+    rca1_co[0] = 0;
+    for (int i=0; i<w; i++)
+        {rca1_co[i+1], rca1_s[i]} = ar[i] + a[i] + rca1_co[i];
+    sum1 = {rca1_co[w], rca1_s};
+end
 
-    always_comb begin
-        sum = {rca1_co[w], rca1_s} + {rca2_co[w], rca2_s};
-    end
+always_comb begin
+    rca2_co[0] = 0;
+    cr2 = {1'b0,a};
+    for(int i=0; i<w+1; i++)
+        {rca2_co[i+1],rca2_s[i]} = sum1r[i] + cr2[i] + rca2_co[i];
+    sum2 = {rca2_co[w+1],rca2_s};
+end
 
-`elsif baseline
+always_comb begin    
+    rca3_co[0] = 0;
+    dr3 = {2'b0,a};
+    for(int i=0; i<w+2; i++)
+        {rca3_co[i+1],rca3_s[i]} = sum2r[i] + dr3[i] + rca3_co[i];
+end
 
-    logic [w-1:0]   rca1_s;
-    logic [w:0]     rca2_s;
-    logic [w+1:0]   rca3_s;
-    logic [w:0]     rc1;
-    logic [w:0]     cr2;
-    logic [w+1:0]   rc2;
-    logic [w+1:0]   dr3;
-    logic [w:0]     rca1_co;    //Carry in
-    logic [w+1:0]   rca2_co;
-    logic [w+2:0]   rca3_co;
-
-    logic [w+1:0]   sum;
-
-    //* Canonical structure
-
-    always_comb begin
-        rca1_co[0] = 0;
-        for (int i=0; i<w; i++)
-            {rca1_co[i+1], rca1_s[i]} = ar[i] + br[i] + rca1_co[i];
-        rc1 = {rca1_co[w], rca1_s};
-    end
-
-    always_comb begin
-        rca2_co[0] = 0;
-	    cr2 = {1'b0,cr};
-        for(int i=0; i<w+1; i++)
-            {rca2_co[i+1],rca2_s[i]} = rc1[i] + cr2[i] + rca2_co[i];
-	    rc2 = {rca2_co[w+1],rca2_s};
-    end
-
-    always_comb begin    
-        rca3_co[0] = 0;
-	    dr3 = {2'b0,dr};
-        for(int i=0; i<w+2; i++)
-            {rca3_co[i+1],rca3_s[i]} = rc2[i] + dr3[i] + rca3_co[i];
-    end
-
-    always_comb
+always_comb
     sum = rca3_s;
 
-`endif
-
-//Shift register to accept inputs
+//Shift register to store outputs
 always_ff @(posedge clk)			// or just always -- always_ff tells tools you intend D flip flops
     if(reset) begin					// reset forces all registers to 0 for clean start of test
         ar <= 'b0;
-        br <= 'b0;
-        cr <= 'b0;
-        dr <= 'b0;
+        sum1r <= 'b0;
+        sum2r <= 'b0;
         s  <= 'b0;
     end
     else begin					    // normal operation -- Dffs update on posedge clk
-        ar <= a;						// the chain will always hold the four most recent incoming data samples
-        br <= ar;
-        cr <= br;
-        dr <= cr;
+        ar <= a;
+        sum1r <= sum1;
+        sum2r <= sum2;
         s  <= sum; 
     end
 
