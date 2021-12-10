@@ -29,7 +29,7 @@ fir4rca #(.w(w)) f1(.*);
 
 // series of 25 sets of random operands
   initial begin
-    $display("a   s  s_b  diff");
+    #10ns $display("a   s  s_b  diff");
     #10ns reset = '0;
 	for(int i = 0; i < 10; i++) begin
 	  a   = $random;// 2**(i/4);//$random;
@@ -37,6 +37,7 @@ fir4rca #(.w(w)) f1(.*);
 	  #2ns;
 	end  
     #50ns $stop;
+    $finish;
   end
 
   always @(posedge clk) 
